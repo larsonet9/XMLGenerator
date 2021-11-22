@@ -1,0 +1,3 @@
+mappingFile=C:\\tmp\\Play CDS XML\\XML generation V4_0+\\mappingFile V4_0+.csv
+inputFileDirectory=C:\\tmp\\Play CDS XML\\DEV-TEST\\Excel
+outputFileDirectory=C:\\tmp\\Play CDS XML\\DEV-TEST\\XML
