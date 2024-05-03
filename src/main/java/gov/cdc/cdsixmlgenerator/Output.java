@@ -4,6 +4,8 @@
 package gov.cdc.cdsixmlgenerator;
 
 import java.io.PrintWriter;
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 import java.util.HashMap;
 
 /**
@@ -423,7 +425,11 @@ public class Output {
                             else cvxFlag=0;
                             xmlHeaderTag=(String) xmlTags.get(textConcept+"^"+textHeader);
                             currentValue=(String) currentHeader.valueList.get(idx2);
-                            
+                            // make sure volume doesn't get printed out in scientific notation
+                            if(xmlHeaderTag != null && xmlHeaderTag.equalsIgnoreCase("Volume")){
+                              //System.out.println("parseDouble = " + Double.valueOf((String)currentHeader.valueList.get(idx2)));
+                              currentValue = Double.valueOf((String)currentHeader.valueList.get(idx2)).toString();
+                            }
                             //CVX code
                             if (cvxFlag==1){
                                 if (currentValue.contains(")")){
