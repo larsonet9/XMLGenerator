@@ -193,8 +193,8 @@ public class SeriesToObject {
         else if (concept.equals(previousConcept)){
             //System.out.println("repeat line with same concept  "+concept);
             Dose currentDose=(Dose) currentSeries.doseList.get(currentSeries.doseList.size()-1);
-            System.out.println("Current Series: " + currentSeries.getName());
-            System.out.println("(repeat) here is the currentDose value: "+currentDose.getNumber());
+//            System.out.println("Current Series: " + currentSeries.getName());
+//            System.out.println("(repeat) here is the currentDose value: "+currentDose.getNumber());
             Concept thisConcept=(Concept) currentDose.conceptList.get(currentDose.conceptList.size()-1);
             //System.out.println("this is the concept we will be adding values to: "+thisConcept.toString());
             int headerCount=thisConcept.headerList.size();

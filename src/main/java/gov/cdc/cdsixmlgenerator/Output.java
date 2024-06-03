@@ -428,7 +428,13 @@ public class Output {
                             // make sure volume doesn't get printed out in scientific notation
                             if(xmlHeaderTag != null && xmlHeaderTag.equalsIgnoreCase("Volume")){
                               //System.out.println("parseDouble = " + Double.valueOf((String)currentHeader.valueList.get(idx2)));
-                              currentValue = Double.valueOf((String)currentHeader.valueList.get(idx2)).toString();
+                              try { 
+                                  currentValue = Double.valueOf((String)currentHeader.valueList.get(idx2)).toString();
+                              }
+                              catch(NumberFormatException NFE) {
+                                  
+                              }
+                              
                             }
                             //CVX code
                             if (cvxFlag==1){
