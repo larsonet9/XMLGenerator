@@ -25,7 +25,7 @@ public class Schedule {
     Concept conditions;
     Concept contraindications;
     Concept cvxToAntigen;
-    Concept liveConflict;
+    Concept vaccineConflict;
     Concept groupToAntigen;
     Concept vaccineGroup;
     
@@ -34,7 +34,7 @@ public class Schedule {
         //Coded Conditions
         //Contraindications - deprecated with Version 3.0
         //CVX to Antigen
-        //Live Virus Conflicts
+        //Vaccine Conflicts
         //Vaccine Group to Antigen Map
         //Vaccine Group
         try{
@@ -109,8 +109,8 @@ public class Schedule {
         String newFile=outputFileDir+"\\ScheduleSupportingData.xml";
         PrintWriter out=XMLgenerator.openWriter(newFile);
         out.println("<scheduleSupportingData>");
-        //Live Virus Conflicts
-        writeLiveConflict(thisSchedule,out);        
+        //Vaccine Conflicts
+        writeVaccineConflict(thisSchedule,out);        
         //Contraindications - deprecated with version 3.0
         //writeContraindications(thisSchedule,out);
         //Vaccine Groups
@@ -374,13 +374,13 @@ public class Schedule {
             out.println("</cvxToAntigenMap>");
         }
     }
-    private static void writeLiveConflict(Schedule thisSchedule,PrintWriter out){
-        //Live Virus Conflicts
+    private static void writeVaccineConflict(Schedule thisSchedule,PrintWriter out){
+        //Vaccine Conflicts
         //each column is at the same level (no grouping)
         //each CVX column is split into two tags
-        Concept currentConcept=thisSchedule.liveConflict;
+        Concept currentConcept=thisSchedule.vaccineConflict;
         if (currentConcept.headerList.size()!=0){
-            out.println("<liveVirusConflicts>");
+            out.println("<vaccineConflicts>");
             
             
             //get the number of values from the first header object
@@ -392,15 +392,15 @@ public class Schedule {
 
             int valueCount=previousHeader.valueList.size();
             for (int idx2=0;idx2<valueCount;idx2++){
-                //previous cvx
+                //conflicting vaccine (i.e., previous cvx)
                 String cvx=(String) previousHeader.valueList.get(idx2);
                 if (cvx.isEmpty()) continue;
-                Output.printStartLine("liveVirusConflict",out);
-                Output.cvxValue("previous", cvx, out);
+                Output.printStartLine("vaccineConflict",out);
+                Output.cvxValue("conflictingVaccine", cvx, out);
                 
-                //current cvx
+                //impacted vaccine (i.e., current cvx)
                 cvx=(String) currentHeader.valueList.get(idx2);
-                Output.cvxValue("current", cvx, out);
+                Output.cvxValue("impactedVaccine", cvx, out);
                 
                 //conflict begin interval
                 String begin=(String) beginHeader.valueList.get(idx2);
@@ -414,11 +414,11 @@ public class Schedule {
                 String end=(String) endHeader.valueList.get(idx2);
                 printLine("conflictEndInterval",end,out);               
                 
-                Output.printEndLine("liveVirusConflict",out);        
+                Output.printEndLine("vaccineConflict",out);        
             }
             
             
-            out.println("</liveVirusConflicts>");
+            out.println("</vaccineConflicts>");
         }
     }
     private static void writeGroupToAntigen(Schedule thisSchedule,PrintWriter out){
@@ -490,7 +490,7 @@ public class Schedule {
                 
                 //Administer Full Vaccine Group
                 String administerFull=(String) administerFullHeader.valueList.get(idx2);
-                printLine("administerFullVaccineGroup",administerFull,out);
+                printLine("administerFullVaccineGroupFlag",administerFull,out);
                 
                 Output.printEndLine("vaccineGroup",out);        
             }

@@ -38,7 +38,7 @@ public class XMLgenerator {
         DataInputStream in=null;
         try {
             //String filepath="\\\\cdc\\project\\NIP_ISD_Store1\\IRSB\\IISSB Projects\\Clinical Decision Support (CDSi)\\Publication\\Supporting Data\\XML generation V4_0+\\defaultProperties.txt";
-            String filepath="C:\\Users\\Eric\\Documents\\NetBeansProjects\\CDSiXMLGenerator\\src\\main\\java\\gov\\cdc\\cdsixmlgenerator\\defaultProperties.txt";
+            String filepath="C:\\Users\\Eric\\Documents\\NetBeansProjects\\CDSiXMLGen5.x\\src\\main\\java\\gov\\cdc\\cdsixmlgenerator\\defaultProperties.txt";
             if (args.length>0){
                 filepath=args[0];  //allow an override for the default properties file
             }
@@ -104,9 +104,9 @@ public class XMLgenerator {
                             scheduleSupportingData.readScheduleFile(f,scheduleSupportingData.cvxToAntigen);
                             supportFiles="found";
                         }
-                        else if (fName.contains("Live Virus Conflicts")){
-                            scheduleSupportingData.liveConflict=new Concept("Live Virus Conflicts");
-                            scheduleSupportingData.readScheduleFile(f,scheduleSupportingData.liveConflict);
+                        else if (fName.contains("Vaccine Conflicts")){
+                            scheduleSupportingData.vaccineConflict=new Concept("Vaccine Conflicts");
+                            scheduleSupportingData.readScheduleFile(f,scheduleSupportingData.vaccineConflict);
                             supportFiles="found";
                         }
                         else if (fName.contains("Vaccine Group to Antigen Map")){

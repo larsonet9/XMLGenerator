@@ -204,7 +204,7 @@ public class SeriesToObject {
                 String value="";
                 Cell cell=row.getCell(y);
                 String cellValue="";
-                //System.out.println(cell+"^"+cell.getCellType());
+                System.out.println(cell+"^"+cell.getCellType());
                 if (cell.getCellType()==0){
                     if (DateUtil.isCellDateFormatted(cell)) {
                         //System.out.println("this is a date: "+cell+"&"+cell.getCellType());
