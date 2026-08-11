@@ -22,6 +22,32 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class SeriesToObject {
     
+    private static boolean isEmptyRow(Row row) {
+        Cell colA  = row.getCell(0);
+        Cell colB = row.getCell(1);
+        Cell colC  = row.getCell(2);
+        Cell colD = row.getCell(3);
+        Cell colE  = row.getCell(4);
+        Cell colF = row.getCell(5);
+        Cell colG  = row.getCell(6);
+        Cell colH = row.getCell(7);
+        Cell colI  = row.getCell(8);
+
+    return (isEmptyCell(colA) &&
+            isEmptyCell(colB) &&
+            isEmptyCell(colC) &&
+            isEmptyCell(colD) &&
+            isEmptyCell(colE) &&
+            isEmptyCell(colF) &&
+            isEmptyCell(colG) &&
+            isEmptyCell(colH) &&
+            isEmptyCell(colI));        
+    }
+    
+    private static boolean isEmptyCell(Cell cell) {
+        return (cell == null || cell.toString().isBlank());
+    }
+    
     public static void readSeriesFile(Series currentSeries,Sheet sheet){
 
     ArrayList conceptList=new ArrayList();
@@ -34,13 +60,19 @@ public class SeriesToObject {
     while (rowIterator.hasNext()) {
         Row row=(Row) rowIterator.next();
         //System.out.println(row);
-        Cell firstCell=row.getCell(0);
+        Cell firstCell  = row.getCell(0);
+        Cell secondCell = row.getCell(1);
         //System.out.println(firstCell+"%"+firstCell.toString()+"^"+row.getCell(1));
-        if (firstCell==null) continue;
-        //System.out.println(firstCell.toString()+"^"+row.getCell(1));
-        //only deal with rows that have data in the first column
-        concept=firstCell.toString();
-        String secondCellValue=row.getCell(1).toString();
+        if (isEmptyRow(row) || firstCell.toString().equalsIgnoreCase("REMOVED"))
+            continue;
+        
+        // Get new first cell if it is not null
+        // Assume previous value (i.e., don't set the concept if blank).
+        // Update made so Excel can be ADA compliant, but also retain original look.
+        if (!firstCell.toString().isBlank())
+          concept=firstCell.toString();
+       
+        String secondCellValue=secondCell.toString();
         //Series Name exists outside of a dose
         if (concept.equalsIgnoreCase("Series Name")){
             currentSeries.setName(secondCellValue);
@@ -226,6 +258,13 @@ public class SeriesToObject {
                 //get the header object for this column
                 Header thisHeader=(Header) thisConcept.headerList.get(x);
                 //System.out.println("the header we are going to add a value to: "+thisHeader.toString());
+
+                // ADA Compliance update. Some cells will now be intentionally blank 
+                // rather than populated with a value, but hidden with font/cell color match. 
+                // We will assume empty values are the same value as the previous row.
+                if (cellValue.isBlank())
+                    cellValue = "SAME AS PREVIOUS";
+
                 //add the value of the cell to the header object
                 thisHeader.setValue(cellValue);
                 //System.out.println("the concept "+thisConcept.toString()+" now has "+thisHeader.valueList.size());

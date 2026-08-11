@@ -29,13 +29,27 @@ public class ContraindicationToObject {
     while (rowIterator.hasNext()) {
         Row row=(Row) rowIterator.next();
         //System.out.println(row);
-        Cell firstCell=row.getCell(0);
+        Cell firstCell  = row.getCell(0);
+        Cell secondCell = row.getCell(1);
+        Cell thirdCell  = row.getCell(2);
+        Cell fourthCell = row.getCell(3);
+        Cell fifthCell  = row.getCell(4);
         //System.out.println(firstCell+"%"+firstCell.toString()+"^"+row.getCell(1));
-        if (firstCell==null) continue;
-        //System.out.println(firstCell.toString()+"^"+row.getCell(1));
-        //only deal with rows that have data in the first column
-        concept=firstCell.toString();
-        String secondCellValue=row.getCell(1).toString();
+        if (((firstCell  == null || firstCell.toString().isBlank()) && 
+            (secondCell == null || secondCell.toString().isBlank()) &&
+            (thirdCell  == null || thirdCell.toString().isBlank()) &&
+            (fourthCell  == null || fourthCell.toString().isBlank()) &&
+            (fifthCell == null || fifthCell.toString().isBlank())) ||
+            firstCell.toString().equalsIgnoreCase("REMOVED"))
+            continue;
+        
+        // Get new first cell if it is not null
+        // Assume previous value (i.e., don't set the concept if blank).
+        // Update made so Excel can be ADA compliant, but also retain original look.
+        if (!firstCell.toString().isBlank())
+          concept=firstCell.toString();
+       
+        String secondCellValue=secondCell.toString();
 
         //When a new concept is found, add it to the conceptMasterList,
         //create a new concept object and add it to the Immunity object
@@ -101,6 +115,11 @@ public class ContraindicationToObject {
                 }
 
                 //System.out.println("the header we are going to add a value to: "+thisHeader.toString());
+                // ADA Compliance update. Some cells will now be intentionally blank 
+                // rather than populated with the same value, but hidden with font/cell color match. 
+                // We will assume empty values are the same value as the previous row.
+                if (cellValue.isBlank())
+                    cellValue = "SAME AS PREVIOUS";
                 //add the value of the cell to the header object
                 thisHeader.setValue(cellValue);
                 //System.out.println("the concept "+thisConcept.toString()+" now has "+thisHeader.valueList.size());

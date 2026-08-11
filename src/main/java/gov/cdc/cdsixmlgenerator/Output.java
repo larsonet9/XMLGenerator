@@ -58,7 +58,11 @@ public class Output {
             String country=(String) countryHeader.valueList.get(idx2);
             String exclusion=(String) exclusionHeader.valueList.get(idx2);
             //need to track when the combination of the date and country changes
-            String dateCountry=date+country;
+            String dateCountry="";
+            if (date.equalsIgnoreCase("SAME AS PREVIOUS"))
+                dateCountry = previousDateCountry;
+            else
+                dateCountry=date+country;
             //if both date and country are n/a then there is no data to format
             if (date.equalsIgnoreCase("n/a")&country.equalsIgnoreCase("n/a")) continue;
             //if date/country has changes, then print out
@@ -98,6 +102,10 @@ public class Output {
                 String nextDate=(String) dateHeader.valueList.get(idx2+1);
                 String nextCountry=(String) countryHeader.valueList.get(idx2+1);
                 String nextDateCountry=nextDate+nextCountry;
+                
+                if (nextDate.equalsIgnoreCase("SAME AS PREVIOUS"))
+                    nextDateCountry = dateCountry;
+                
                 if (!dateCountry.equals(nextDateCountry)){
                     printEndLine("dateOfBirth",out);
                 }
@@ -160,6 +168,7 @@ public class Output {
         String previousContraindication="";
         for (int idx2=0;idx2<valueCountVaccine;idx2++){
             String code=(String) contraindicationHeaderVaccine.valueList.get(idx2);
+            if (code.equalsIgnoreCase("SAME AS PREVIOUS")) code = previousContraindication;
             if (code.equalsIgnoreCase("n/a")) continue;
             if (idx2==0) printStartLine("vaccine",out);
             int openPos=code.lastIndexOf('(');
@@ -193,10 +202,14 @@ public class Output {
             }
             else {
                 String nextContraindication=(String) contraindicationHeaderVaccine.valueList.get(idx2+1);
+                if (nextContraindication.equalsIgnoreCase("SAME AS PREVIOUS"))
+                    nextContraindication = code;
+
                 if (!code.equals(nextContraindication)){
                     printEndLine("contraindication",out);
                 }
             }
+
             previousContraindication=code;            
         }
     }
@@ -713,10 +726,19 @@ public class Output {
             
 
             String currentSetID=(String) setIDHeader.valueList.get(idx2);
+            
+            // ADA compliance updates to accomodate empty cells
+            if (currentSetID.equalsIgnoreCase("SAME AS PREVIOUS"))
+                currentSetID = previousSetID;
+            
             //*csn+3 20171102 get the current Set Group (which we assume is the first column of data)
             Header setGrouperHeader=(Header) currentConcept.headerList.get(0);
             String textSetGrouperHeader=setGrouperHeader.toString();
             String currentSetGrouper=(String) setGrouperHeader.valueList.get(idx2);
+            
+            // ADA compliance updates
+            if(currentSetGrouper.equalsIgnoreCase("SAME AS PREVIOUS"))
+                currentSetGrouper = previousSetGrouper;
             
             //*csn+19 20171102
             //If the set grouper changes, then close out the previous group
