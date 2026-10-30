@@ -163,6 +163,10 @@ public class XMLgenerator {
                     Contraindication currentContraindication=currentAntigen.setContraindication();
                     ContraindicationToObject.readContraindicationFile(currentContraindication,sheet);
                 }
+                if (sheet.getSheetName().equalsIgnoreCase("Vaccine Recommendation Category")){
+                    RecommendationCategory currentVRC=currentAntigen.setRecommendationCategory();
+                    RecommendationCategoryToObject.readRecommendationCategoryFile(currentVRC, sheet);
+                }
                 if (firstCell.toString().equals("Series Name")){
                     Series currentSeries=currentAntigen.setSeries();
                     SeriesToObject.readSeriesFile(currentSeries,sheet);
@@ -187,6 +191,13 @@ public class XMLgenerator {
             PrintWriter out=openWriter(newFile);
             //out.println(newName);
             out.println("<antigenSupportingData>");
+            
+            //print out the immunity data
+            out.println("<recommendationCategories>");
+            //there should only be one immunity object per antigen
+            RecommendationCategory currentVRC=(RecommendationCategory) currentAntigen.recommendationCategoryList.get(0);
+            Output.printVRCOutput(currentVRC,out);
+            out.println("</recommendationCategories>");
             
             //print out the immunity data
             out.println("<immunity>");

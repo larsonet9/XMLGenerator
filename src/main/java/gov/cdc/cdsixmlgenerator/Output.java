@@ -22,6 +22,115 @@ public class Output {
     static String currentValue="";
     static int cvxFlag=0;
     
+    public static void printVRCOutput(RecommendationCategory currentVRC,PrintWriter out) {
+        //Coded Condtions
+        //each column is at the same level (no grouping)
+        if (currentVRC.headerList.size()!=0){
+            //System.out.println("has coded conditions");
+
+            //get the number of values from the first header object
+            Header sheetNameHeader      = (Header) currentVRC.headerList.get(0);
+            Header patientSeriesHeader  = (Header) currentVRC.headerList.get(1);
+            Header beginAgeHeader       = (Header) currentVRC.headerList.get(2);
+            Header endAgeHeader         = (Header) currentVRC.headerList.get(3);
+            Header forecastTDNumHeader  = (Header) currentVRC.headerList.get(4);
+            Header incIndHeader         = (Header) currentVRC.headerList.get(5);
+            Header excIndHeader         = (Header) currentVRC.headerList.get(6);
+            Header recCatHeader         = (Header) currentVRC.headerList.get(7);
+            Header materialHeader       = (Header) currentVRC.headerList.get(8);
+            int valueCount=sheetNameHeader.valueList.size();
+    
+            for (int idx2=0;idx2<valueCount;idx2++){
+                //best series
+                String patientSeries=(String) patientSeriesHeader.valueList.get(idx2);
+                if (patientSeries.isEmpty()) continue;
+                Output.printStartLine("recommendationCategory",out);
+                printLine("bestPatientSeries",patientSeries,out);
+                
+                //begin age
+                String beginAge=(String) beginAgeHeader.valueList.get(idx2);
+                printLineWrapper("patientBeginAge",beginAge,out);
+                
+                //end age
+                String endAge=(String) endAgeHeader.valueList.get(idx2);
+                printLineWrapper("patientEndAge",endAge,out);
+              
+                //forecast TargetDose Number
+                String forecastTDNum=(String) forecastTDNumHeader.valueList.get(idx2);
+                printLine("forecastTDNum",forecastTDNum,out);
+                
+                //included indications
+                String includedIndications=(String) incIndHeader.valueList.get(idx2);
+                if (includedIndications.equalsIgnoreCase("n/a")) printShortLine("includedIndication", out);
+                else if (includedIndications.equalsIgnoreCase("Any")) {
+                  printStartLine("includedIndication", out);
+                  printLine("incIndText", includedIndications, out);
+                  printLine("incIndCode", includedIndications, out);
+                  printEndLine("includedIndication", out);
+                }
+                else {
+                  String[] indications=includedIndications.split(";");
+                  for (String value : indications) {
+                      //System.out.println(value);
+                      int openPos=value.lastIndexOf('(');
+                      int closePos=value.lastIndexOf(')');
+                      String thisCode=value.substring(openPos+1,closePos);
+                      thisCode=thisCode.trim();
+                      String description=value.substring(0,openPos);
+                      description=description.trim();
+                      printStartLine("includedIndication", out);
+                      printLine("incIndText",description,out);
+                      printLine("incIndCode",thisCode,out);
+                      printEndLine("includedIndication", out);
+                  }
+                }   
+                
+                //excluded indications
+                String excludedIndications=(String) excIndHeader.valueList.get(idx2);
+                if (excludedIndications.equalsIgnoreCase("n/a")) printShortLine("excludedIndication", out);
+                else if (excludedIndications.equalsIgnoreCase("Any")) {
+                  printStartLine("excludedIndication", out);
+                  printLine("excIndText", excludedIndications, out);
+                  printLine("excIndCode", excludedIndications, out);
+                  printEndLine("excludedIndication", out);
+                }   
+                else {
+                  String[] indications=excludedIndications.split(";");
+                  for (String value : indications) {
+                      //System.out.println(value);
+                      int openPos=value.lastIndexOf('(');
+                      int closePos=value.lastIndexOf(')');
+                      String thisCode=value.substring(openPos+1,closePos);
+                      thisCode=thisCode.trim();
+                      String description=value.substring(0,openPos);
+                      description=description.trim();
+                      printStartLine("excludedIndication", out);
+                      printLine("excIndText",description,out);
+                      printLine("excIndCode",thisCode,out);
+                      printEndLine("excludedIndication", out);
+                  }
+                }   
+
+                //Recommendation Category
+                String recCategory=(String) recCatHeader.valueList.get(idx2);
+                printLine("recommendationCategoryName",recCategory,out);
+
+                //Online Material
+                String material=(String) materialHeader.valueList.get(idx2);
+                if (material.equalsIgnoreCase("n/a")) printShortLine("recommendationMaterial", out);
+                else {
+                  String[] materialArray=material.split(";");
+                  for (String singleURL : materialArray) {
+                    printLine("recommendationMaterial",singleURL,out);
+                  }
+                }
+
+                printEndLine("recommendationCategory",out);        
+            }           
+        }
+    }    
+        
+        
     public static void printImmunityOutput(Immunity currentImmunity,PrintWriter out){
         //At this point, hard code everything as there aren't any changes or evolution expected at this time
         //Print Clinical History Immunity from the first concept
@@ -39,8 +148,8 @@ public class Output {
             thisCode=thisCode.trim();
             String rest=guideline.substring(0,openPos);
             rest=rest.trim();
-            printLineWrapper("guidelineCode",thisCode,out);
-            printLineWrapper("guidelineTitle",rest,out);
+            printLineWrapper("immunityCode",thisCode,out);
+            printLineWrapper("immunityTitle",rest,out);
             printEndLine("clinicalHistory",out);      
         }
         //Print Birth Date Immunity from the second concept
@@ -58,7 +167,11 @@ public class Output {
             String country=(String) countryHeader.valueList.get(idx2);
             String exclusion=(String) exclusionHeader.valueList.get(idx2);
             //need to track when the combination of the date and country changes
-            String dateCountry=date+country;
+            String dateCountry="";
+            if (date.equalsIgnoreCase("SAME AS PREVIOUS"))
+                dateCountry = previousDateCountry;
+            else
+                dateCountry=date+country;
             //if both date and country are n/a then there is no data to format
             if (date.equalsIgnoreCase("n/a")&country.equalsIgnoreCase("n/a")) continue;
             //if date/country has changes, then print out
@@ -76,18 +189,18 @@ public class Output {
             }
             //there may be multiple exclusion conditions per date/country combination
             //but each exclusion condition will appear only on a single line
-            //print out an "exclusion" wrapper tag and then the code and title before
+            //print out an "immunityExclusion" wrapper tag and then the code and title before
             //closing the wrapper
-                printStartLine("exclusion",out);
+                printStartLine("immunityExclusion",out);
                 int openPos=exclusion.lastIndexOf('(');
                 int closePos=exclusion.lastIndexOf(')');
                 String thisCode=exclusion.substring(openPos+1,closePos);
                 thisCode=thisCode.trim();
                 String rest=exclusion.substring(0,openPos);
                 rest=rest.trim();
-                printLineWrapper("exclusionCode",thisCode,out);
-                printLineWrapper("exclusionTitle",rest,out);
-                printEndLine("exclusion",out);
+                printLineWrapper("immunityExclusionCode",thisCode,out);
+                printLineWrapper("immunityExclusionTitle",rest,out);
+                printEndLine("immunityExclusion",out);
                 
             // if this is the last line, then close the date of birth tag
             if (idx2==valueCount-1){
@@ -98,6 +211,10 @@ public class Output {
                 String nextDate=(String) dateHeader.valueList.get(idx2+1);
                 String nextCountry=(String) countryHeader.valueList.get(idx2+1);
                 String nextDateCountry=nextDate+nextCountry;
+                
+                if (nextDate.equalsIgnoreCase("SAME AS PREVIOUS"))
+                    nextDateCountry = dateCountry;
+                
                 if (!dateCountry.equals(nextDateCountry)){
                     printEndLine("dateOfBirth",out);
                 }
@@ -123,7 +240,7 @@ public class Output {
         for (int idx2=0;idx2<valueCount;idx2++){
             String code=(String) contraindicationHeader.valueList.get(idx2);
             if (code.equalsIgnoreCase("n/a")) continue;
-            if (idx2==0) printStartLine("vaccineGroup",out);
+            if (idx2==0) printStartLine("antigen",out);
             printStartLine("contraindication",out);
             int openPos=code.lastIndexOf('(');
             int closePos=code.lastIndexOf(')');
@@ -131,19 +248,19 @@ public class Output {
             thisCode=thisCode.trim();
             String rest=code.substring(0,openPos);
             rest=rest.trim();
-            printLineWrapper("observationCode",thisCode,out);
-            printLineWrapper("observationTitle",rest,out);
+            printLineWrapper("antigenContraindicationCode",thisCode,out);
+            printLineWrapper("antigenContraindicationTitle",rest,out);
             String text=(String) textHeader.valueList.get(idx2);
-            printLineWrapper("contraindicationText",text,out);    
+            printLineWrapper("antigenContraindicationText",text,out);    
             String guidance=(String) guidanceHeader.valueList.get(idx2);
-            printLineWrapper("contraindicationGuidance",guidance,out); 
+            printLineWrapper("antigenContraindicationGuidance",guidance,out); 
             String beginAge=(String) beginHeader.valueList.get(idx2);
             printLineWrapper("beginAge",beginAge,out); 
             String endAge=(String) endHeader.valueList.get(idx2);
             printLineWrapper("endAge",endAge,out); 
             printEndLine("contraindication",out);
         }
-        printEndLine("vaccineGroup",out);
+        printEndLine("antigen",out);
 
         //Print Vaccine Level Contraindications from the second concept
         Concept vaccineLevel=(Concept) currentContraindication.conceptList.get(1);
@@ -160,6 +277,7 @@ public class Output {
         String previousContraindication="";
         for (int idx2=0;idx2<valueCountVaccine;idx2++){
             String code=(String) contraindicationHeaderVaccine.valueList.get(idx2);
+            if (code.equalsIgnoreCase("SAME AS PREVIOUS")) code = previousContraindication;
             if (code.equalsIgnoreCase("n/a")) continue;
             if (idx2==0) printStartLine("vaccine",out);
             int openPos=code.lastIndexOf('(');
@@ -170,12 +288,12 @@ public class Output {
             rest=rest.trim();
             if (!code.equalsIgnoreCase(previousContraindication)){
                 printStartLine("contraindication",out);
-                printLineWrapper("observationCode",thisCode,out);
-                printLineWrapper("observationTitle",rest,out);
+                printLineWrapper("vaccineContraindicationCode",thisCode,out);
+                printLineWrapper("vaccineContraindicationTitle",rest,out);
                 String text=(String) textHeaderVaccine.valueList.get(idx2);
-                printLineWrapper("contraindicationText",text,out);
+                printLineWrapper("vaccineContraindicationText",text,out);
                 String vaccineGuidance=(String) guidanceHeaderVaccine.valueList.get(idx2);
-                printLineWrapper("contraindicationGuidance",vaccineGuidance,out);
+                printLineWrapper("vaccineContraindicationGuidance",vaccineGuidance,out);
             }
             printStartLine("contraindicatedVaccine",out);
             String vaccine=(String) vaccineHeaderVaccine.valueList.get(idx2);
@@ -193,10 +311,14 @@ public class Output {
             }
             else {
                 String nextContraindication=(String) contraindicationHeaderVaccine.valueList.get(idx2+1);
+                if (nextContraindication.equalsIgnoreCase("SAME AS PREVIOUS"))
+                    nextContraindication = code;
+
                 if (!code.equals(nextContraindication)){
                     printEndLine("contraindication",out);
                 }
             }
+  
             previousContraindication=code;            
         }
     }
@@ -323,7 +445,7 @@ public class Output {
                             //regular code
                             else if (cvxFlag==3){
                                 if (currentValue.contains(")")){
-                                    codeValue(xmlHeaderTag,currentValue,out);
+                                    codeValue(xmlHeaderTag,currentValue, "indicationText", "indicationCode", out);
                                 }
                                 else {
                                     printShortLine(xmlHeaderTag,out);
@@ -458,7 +580,7 @@ public class Output {
                             //regular code
                             else if (cvxFlag==3){
                                 if (currentValue.contains(")")){
-                                    codeValue(xmlHeaderTag,currentValue,out);
+                                    codeValue(xmlHeaderTag,currentValue, "relevantObsText", "relevantObsCode", out);
                                 }
                                 else {
                                     printShortLine(xmlHeaderTag,out);
@@ -527,7 +649,7 @@ public class Output {
             printEndLine(xmlTag,out);
         } 
     }
-    public static void codeValue(String xmlTag, String value,PrintWriter out){
+    public static void codeValue(String xmlTag, String value, String textXMLTag, String codeXMLTag, PrintWriter out){
         int openPos=value.lastIndexOf('(');
         int closePos=value.lastIndexOf(')');
         //System.out.println(value+"&"+openPos+"&"+closePos);
@@ -538,8 +660,8 @@ public class Output {
         if (xmlTag!=null){
             printStartLine(xmlTag,out);
         }            
-        printLine("text",rest,out);
-        printLine("code",code,out);
+        printLine(textXMLTag,rest,out);
+        printLine(codeXMLTag,code,out);
         if (xmlTag!=null){
             printEndLine(xmlTag,out);
         } 
@@ -713,10 +835,19 @@ public class Output {
             
 
             String currentSetID=(String) setIDHeader.valueList.get(idx2);
-            //*csn+3 20171102 get the current Set Group (which we assume is the first column of data)
+
+            // ADA compliance updates to accomodate empty cells
+            if (currentSetID.equalsIgnoreCase("SAME AS PREVIOUS"))
+                currentSetID = previousSetID;
+            
+          //*csn+3 20171102 get the current Set Group (which we assume is the first column of data)
             Header setGrouperHeader=(Header) currentConcept.headerList.get(0);
             String textSetGrouperHeader=setGrouperHeader.toString();
             String currentSetGrouper=(String) setGrouperHeader.valueList.get(idx2);
+            
+            // ADA compliance updates
+            if(currentSetGrouper.equalsIgnoreCase("SAME AS PREVIOUS"))
+                currentSetGrouper = previousSetGrouper;
             
             //*csn+19 20171102
             //If the set grouper changes, then close out the previous group

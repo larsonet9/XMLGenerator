@@ -15,6 +15,7 @@ public class Antigen {
     ArrayList seriesList=new ArrayList();
     ArrayList immunityList= new ArrayList();
     ArrayList contraindicationList= new ArrayList();
+    ArrayList recommendationCategoryList = new ArrayList();
     
 public Antigen(String name){
     this.antigenName=name;
@@ -57,5 +58,15 @@ public Contraindication setContraindication() {
     contraindicationList.add(currentContraindication);
     return currentContraindication;
 } 
+public ArrayList getRecommendationCategory() {
+    return recommendationCategoryList;
+}
+
+public RecommendationCategory setRecommendationCategory() {
+    RecommendationCategory currentRecommendationCategory=new RecommendationCategory();
+    recommendationCategoryList.add(currentRecommendationCategory);
+    return currentRecommendationCategory;
+} 
+
 }
 

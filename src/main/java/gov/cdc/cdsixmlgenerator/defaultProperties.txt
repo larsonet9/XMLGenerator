@@ -1,3 +1,3 @@
-mappingFile=C:\\Users\\Eric\\OneDrive - CDC\\CDSi\\Supporting Data 5.0\\XML generation V5_0+\\mappingFile V5_0+.csv
-inputFileDirectory=C:\\Users\\Eric\\OneDrive - CDC\\CDSi\\Supporting Data 5.0\\Debug\\Excel
-outputFileDirectory=C:\\Users\\Eric\\OneDrive - CDC\\CDSi\\Supporting Data 5.0\\Debug\\XML
+mappingFile=C:\\tmp\\Play CDS XML\\VERSION 5.0\\XML generation V5_0+\\mappingFile V5_0+.csv
+inputFileDirectory=C:\\tmp\\Play CDS XML\\VERSION 5.0\\Debug\\Excel
+outputFileDirectory=C:\\tmp\\Play CDS XML\\VERSION 5.0\\Debug\\XML
