@@ -118,7 +118,7 @@ public class SeriesToObject {
                 //*csn 20171102 udpate "getCell" to use 2 instead of 1
                 //              and check the number of cells
                 //              to account for the new Skip Context
-                if ((row.getLastCellNum()>2) && (row.getCell(2).toString().contains("Set Logic"))) {
+                if ((row.getLastCellNum()>2) && (row.getCell(2)!= null && row.getCell(2).toString().contains("Set Logic"))) {
                     thisConcept.setType("enhancedSet");
                 }
                 else thisConcept.setType("Line");
